@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BNI - Sistem Tracking Persuratan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .bni-orange {
+            background-color: #ff6600;
+        }
+        .bni-orange-text {
+            color: #ff6600;
+        }
+        .bni-orange-border {
+            border-color: #ff6600;
+        }
+        .bni-blue {
+            background-color: #005e6a;
+        }
+        .bni-blue-text {
+            color: #005e6a;
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        .shadow-custom {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 700px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #555;
+        }
+        .tab {
+            cursor: pointer;
+            padding: 10px 15px;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            border-bottom: 2px solid #ff6600;
+            color: #ff6600;
+            font-weight: 600;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="bg-white p-8 rounded-lg shadow-custom w-full max-w-md">
+            <div class="flex justify-center mb-6">
+                <img src="logo bni.jpeg" alt="Logo BNI" class="h-14 object-contain">
+            </div>
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">DigiHT</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="npp" class="block text-sm font-medium text-gray-700 mb-1">NPP</label>
+                    <input type="text" id="npp" name="npp" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                </div>
+                <div>
+                    <label for="wilayah" class="block text-sm font-medium text-gray-700 mb-1">Wilayah</label>
+                    <select id="wilayah" name="wilayah" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                        <option value="">Pilih Wilayah</option>
+                        <option value="wilayah15">Wilayah 15</option>
+                    </select>
+                </div>
+                <div id="cabangContainer" class="hidden">
+                    <label for="cabang" class="block text-sm font-medium text-gray-700 mb-1">Cabang</label>
+                    <select id="cabang" name="cabang" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">Pilih Cabang</option>
+                        <option value="rawamangun">Rawamangun</option>
+                        <option value="kemayoran">Bekasi</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                </div>
+                <div>
+                    <label for="userType" class="block text-sm font-medium text-gray-700 mb-1">Tipe User</label>
+                    <select id="userType" name="userType" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                        <option value="">Pilih Tipe User</option>
+                        <option value="staff">Staff COL</option>
+                        <option value="pimpinan">Branch Business Manager</option>
+                        <option value="wilayah">Wilayah</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full py-2 px-4 bni-orange text-white font-medium rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition-all">Login</button>
+            </form>
+        </div>
+    </div>
+    
+ <!-- Dashboard Page -->
+<div id="dashboardPage" class="hidden min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center">
+            <!-- Ganti SVG dengan gambar logo -->
+            <img src="logo bni.jpeg" alt="Logo BNI" class="h-10 w-auto object-contain">
+            <h1 class="text-xl font-bold ml-4 text-gray-800">DigiHT</h1>
+        </div>
+        <div class="flex items-center">
+            <span id="userInfo" class="mr-4 text-gray-700"></span>
+            <button id="logoutBtn" class="px-4 py-2 bni-orange text-white rounded-md hover:bg-orange-700 transition-all">Logout</button>
+        </div>
+    </div>
+</header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <div class="bg-white rounded-lg shadow-custom p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-[#016284]">Dashboard Tracking Notaris</h2>
+
+            
+            <!-- Filter Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label for="filterCabang" class="block text-sm font-medium text-gray-700 mb-1">Cabang</label>
+                    <select id="filterCabang" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">Semua Cabang</option>
+                        <option value="rawamangun">Rawamangun</option>
+                        <option value="kemayoran">Bekasi</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filterOutlet" class="block text-sm font-medium text-gray-700 mb-1">Outlet</label>
+                    <select id="filterOutlet" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">Semua Outlet</option>
+                        <!-- Outlet options will be populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label for="searchNotaris" class="block text-sm font-medium text-gray-700 mb-1">Cari Notaris</label>
+                    <input type="text" id="searchNotaris" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Nama notaris...">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between mb-6">
+                <div>
+                    <button id="refreshBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Refresh
+                    </button>
+                    <button id="exportBtn" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export
+                    </button>
+                </div>
+                <button id="addNotarisBtn" class="px-4 py-2 bni-orange text-white rounded-md hover:bg-orange-700 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Tambah Notaris
+                </button>
+            </div>
+
+            <!-- Notaris Table -->
+            <div class="table-container">
+                <table id="notarisTable" class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Nama Notaris</th>
+                            <th>Cabang</th>
+                            <th>Outlet</th>
+                            <th>Jumlah Debitur</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table data will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Bank Negara Indonesia. All rights reserved.</p>
+        </div>
+    </footer>
+</div>
+
+<!-- Add/Edit Notaris Modal -->
+<div id="notarisModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle" class="text-xl font-semibold mb-4 bni-orange-text">Tambah Notaris</h2>
+        <form id="notarisForm" class="space-y-4">
+            <input type="hidden" id="notarisId">
+            <div>
+                <label for="namaNotaris" class="block text-sm font-medium text-gray-700 mb-1">Nama Notaris</label>
+                <input type="text" id="namaNotaris" name="namaNotaris" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+            </div>
+            <div>
+                <label for="modalCabang" class="block text-sm font-medium text-gray-700 mb-1">Cabang</label>
+                <select id="modalCabang" name="modalCabang" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                    <option value="">Pilih Cabang</option>
+                    <option value="rawamangun">Rawamangun</option>
+                    <option value="kemayoran">Bekasi</option>
+                </select>
+            </div>
+            <div>
+                <label for="modalOutlet" class="block text-sm font-medium text-gray-700 mb-1">Outlet</label>
+                <select id="modalOutlet" name="modalOutlet" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                    <option value="">Pilih Outlet</option>
+                    <!-- Outlet options will be populated dynamically -->
+                </select>
+            </div>
+            <div>
+                <label for="statusNotaris" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select id="statusNotaris" name="statusNotaris" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                    <option value="aktif">Aktif</option>
+                    <option value="nonaktif">Non-Aktif</option>
+                </select>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" class="close-modal px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all mr-2">Batal</button>
+                <button type="submit" class="px-4 py-2 bni-orange text-white rounded-md hover:bg-orange-700 transition-all">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Debitur Detail Modal -->
+<div id="debiturModal" class="modal">
+    <div class="modal-content" style="max-width: 900px;">
+        <span class="close">&times;</span>
+        <h2 id="debiturModalTitle" class="text-xl font-semibold mb-4 text-[#016284]">
+        Detail Debitur - <span id="notarisName"></span>
+        </h2>
+
+        <div class="mb-4">
+            <div class="flex border-b">
+                <div class="tab active" data-tab="debiturList">Daftar Debitur</div>
+                <div class="tab" data-tab="addDebitur">Tambah Debitur</div>
+            </div>
+        </div>
+        
+        <div id="debiturList" class="tab-content active">
+            <div class="mb-4 flex justify-between items-center">
+                <input type="text" id="searchDebitur" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Cari nama debitur...">
+                <div>
+                    <button id="refreshDebiturBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Refresh
+                    </button>
+                    <button id="exportDebiturBtn" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="debiturTable" class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Nama Debitur</th>
+                            <th>Tanggal Pengajuan</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table data will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="addDebitur" class="tab-content">
+            <form id="debiturForm" class="space-y-4">
+                <input type="hidden" id="debiturId">
+                <input type="hidden" id="debiturNotarisId">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="namaDebitur" class="block text-sm font-medium text-gray-700 mb-1">Nama Debitur</label>
+                        <input type="text" id="namaDebitur" name="namaDebitur" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                    </div>
+                    <div>
+                        <label for="tanggalPengajuan" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pengajuan</label>
+                        <input type="date" id="tanggalPengajuan" name="tanggalPengajuan" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="jenisKredit" class="block text-sm font-medium text-gray-700 mb-1">Jenis Kredit</label>
+                        <select id="jenisKredit" name="jenisKredit" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                            <option value="">Pilih Jenis Kredit</option>
+                            <option value="KPR">KUR</option>
+                            <option value="KMK">Fleksi</option>
+                            <option value="KI">BWU</option>
+                            <option value="KTA">Griya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="plafond" class="block text-sm font-medium text-gray-700 mb-1">Plafond</label>
+                        <input type="text" id="plafond" name="plafond" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Rp" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="statusDebitur" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select id="statusDebitur" name="statusDebitur" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                        <option value="penyerahan">Penyerahan Dokumen</option>
+                        <option value="proses1">Proses Dokumen 1</option>
+                        <option value="proses2">Proses Dokumen 2</option>
+                        <option value="Penyelesaian">Penyelesaian Dokumen</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
+                    <textarea id="keterangan" name="keterangan" rows="3" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="button" class="reset-form px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all mr-2">Reset</button>
+                    <button type="submit" class="px-4 py-2 bni-orange text-white rounded-md hover:bg-orange-700 transition-all">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Debitur Detail View Modal -->
+<div id="debiturDetailModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+        <span class="close">&times;</span>
+        <h2 class="text-xl font-semibold mb-4 bni-orange-text">Detail Proses Kredit</h2>
+                        <div id="debiturDetailContent" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500">Nama Debitur</p>
+                    <p id="detailNamaDebitur" class="font-medium"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Notaris</p>
+                    <p id="detailNamaNotaris" class="font-medium"></p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500">Tanggal Pengajuan</p>
+                    <p id="detailTanggalPengajuan" class="font-medium"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Jenis Kredit</p>
+                    <p id="detailJenisKredit" class="font-medium"></p>
+                </div>
+            </div>
+
+            
+            <div>
+                <p class="text-sm text-gray-500">Status</p>
+                <p id="detailStatus" class="font-medium"></p>
+            </div>
+            
+            <div>
+                <p class="text-sm text-gray-500">Keterangan</p>
+                <p id="detailKeterangan" class="font-medium"></p>
+            </div>
+            
+            <div class="border-t pt-4 mt-4">
+                <h3 class="font-semibold mb-2">Timeline Proses</h3>
+                <div id="timelineContainer" class="space-y-4">
+                    <!-- Timeline will be populated dynamically -->
+                </div>
+            </div>
+            
+            <div id="editButtonContainer" class="flex justify-end mt-4">
+                <button id="editDebiturBtn" class="px-4 py-2 bni-orange text-white rounded-md hover:bg-orange-700 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit Data
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <span class="close">&times;</span>
+        <h2 class="text-xl font-semibold mb-4 text-red-600">Konfirmasi Hapus</h2>
+        <p id="deleteConfirmText" class="mb-6">Apakah Anda yakin ingin menghapus data ini?</p>
+        <div class="flex justify-end">
+            <button class="close-modal px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all mr-2">Batal</button>
+            <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all">Hapus</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sample Data
+    const userData = [
+        { id: 1, npp: "P0112345", password: "password", type: "staff", wilayah: "wilayah15", cabang: "rawamangun", name: "Staff Rawamangun" },
+        { id: 2, npp: "P0156789", password: "password", type: "staff", wilayah: "wilayah15", cabang: "kemayoran", name: "Staff Kemayoran" },
+        { id: 3, npp: "P0212345", password: "password", type: "pimpinan", wilayah: "wilayah15", cabang: "rawamangun", name: "Pimpinan Rawamangun" },
+        { id: 4, npp: "P0256789", password: "password", type: "pimpinan", wilayah: "wilayah15", cabang: "kemayoran", name: "Pimpinan Kemayoran" },
+        { id: 5, npp: "P0312345", password: "password", type: "wilayah", wilayah: "wilayah15", cabang: "", name: "User Wilayah 15" }
+    ];
+
+    const outletData = {
+        rawamangun: [
+            "Cipinang", "Jl. Paus", "Pondok Kelapa", "ITL Trisakti", "Balai Pustaka", 
+            "UNJ", "Persada", "Utaka", "Pahrev", "Cakung", "Billymoon", 
+            "Buaran", "PTC", "Klender", "KP. Ambon", "Jiep", "Pondok Bambu"
+        ],
+        kemayoran: [
+            "Sunter", "Kelapa Gading", "Cempaka Putih", "Pademangan", "Ancol", 
+            "Gunung Sahari", "Mangga Dua", "Pluit", "Muara Karang", "Tanjung Priok"
+        ]
+    };
+
+    let notarisData = [
+        { id: 1, nama: "Notaris A", cabang: "rawamangun", outlet: "Cipinang", status: "aktif" },
+        { id: 2, nama: "Notaris B", cabang: "rawamangun", outlet: "Jl. Paus", status: "aktif" },
+        { id: 3, nama: "Notaris C", cabang: "kemayoran", outlet: "Sunter", status: "aktif" },
+        { id: 4, nama: "Notaris D", cabang: "kemayoran", outlet: "Kelapa Gading", status: "nonaktif" }
+    ];
+
+    let debiturData = [
+        { 
+            id: 1, 
+            notarisId: 1, 
+            nama: "Debitur A", 
+            tanggalPengajuan: "2025-06-15", 
+            jenisKredit: "KPR", 
+            plafond: "500000000", 
+            status: "penyerahan", 
+            keterangan: "Sudah cair pada tanggal 20 Juni 2025",
+            timeline: [
+                { status: "penyerahan", tanggal: "2025-06-15", keterangan: "Sudah melakukan penyerahan dokumen ke notaris" },
+                { status: "proses1", tanggal: "2025-06-17", keterangan: "Sudah dalam proses, namun kekurangan KTP" },
+                { status: "proses2", tanggal: "2025-06-18", keterangan: "Sedang dalam proses tanda tangan" },
+                { status: "penyelesaian", tanggal: "2025-06-19", keterangan: "Dokumen selesai" }
+            ]
+        },
+        { 
+            id: 2, 
+            notarisId: 1, 
+            nama: "Debitur B", 
+            tanggalPengajuan: "2023-06-18", 
+            jenisKredit: "KMK", 
+            plafond: "300000000", 
+            status: "analisa", 
+            keterangan: "Dalam proses analisa kredit",
+            timeline: [
+                { status: "penyerahan", tanggal: "2025-06-15", keterangan: "Sudah melakukan penyerahan dokumen ke notaris" },
+                { status: "proses1", tanggal: "2025-06-17", keterangan: "Sudah dalam proses, namun kekurangan KTP" }
+            ]
+        },
+        { 
+            id: 3, 
+            notarisId: 2, 
+            nama: "Debitur C", 
+            tanggalPengajuan: "2023-06-10", 
+            jenisKredit: "KI", 
+            plafond: "1000000000", 
+            status: "akad", 
+            keterangan: "Akad kredit dijadwalkan tanggal 25 Juni 2023",
+            timeline: [
+                { status: "penyerahan", tanggal: "2025-06-15", keterangan: "Sudah melakukan penyerahan dokumen ke notaris" },
+                { status: "proses1", tanggal: "2025-06-17", keterangan: "Sudah dalam proses, namun kekurangan KTP" },
+                { status: "proses2", tanggal: "2025-06-18", keterangan: "Sedang dalam proses tanda tangan" }
+            ]
+        },
+        { 
+            id: 4, 
+            notarisId: 3, 
+            nama: "Debitur D", 
+            tanggalPengajuan: "2023-06-05", 
+            jenisKredit: "KTA", 
+            plafond: "150000000", 
+            status: "pencairan", 
+            keterangan: "Sudah cair pada tanggal 15 Juni 2023",
+            timeline: [
+                { status: "penyerahan", tanggal: "2025-06-15", keterangan: "Sudah melakukan penyerahan dokumen ke notaris" },
+                { status: "proses1", tanggal: "2025-06-17", keterangan: "Sudah dalam proses, namun kekurangan KTP" },
+                { status: "proses2", tanggal: "2025-06-18", keterangan: "Sedang dalam proses tanda tangan" },
+                { status: "penyelesaian", tanggal: "2025-06-19", keterangan: "Dokumen selesai" }
+            ]
+        }
+    ];
+
+    // Global variables
+    let currentUser = null;
+    let selectedNotarisId = null;
+    let selectedDebiturId = null;
+    let deleteType = null;
+    let deleteId = null;
+
+    // DOM Elements
+    const loginPage = document.getElementById('loginPage');
+    const dashboardPage = document.getElementById('dashboardPage');
+    const loginForm = document.getElementById('loginForm');
+    const userTypeSelect = document.getElementById('userType');
+    const cabangContainer = document.getElementById('cabangContainer');
+    const userInfo = document.getElementById('userInfo');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const notarisTable = document.getElementById('notarisTable');
+    const filterCabang = document.getElementById('filterCabang');
+    const filterOutlet = document.getElementById('filterOutlet');
+    const searchNotaris = document.getElementById('searchNotaris');
+    const addNotarisBtn = document.getElementById('addNotarisBtn');
+    const notarisModal = document.getElementById('notarisModal');
+    const notarisForm = document.getElementById('notarisForm');
+    const modalCabang = document.getElementById('modalCabang');
+    const modalOutlet = document.getElementById('modalOutlet');
+    const debiturModal = document.getElementById('debiturModal');
+    const debiturTable = document.getElementById('debiturTable');
+    const debiturForm = document.getElementById('debiturForm');
+    const debiturDetailModal = document.getElementById('debiturDetailModal');
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // User type change
+        userTypeSelect.addEventListener('change', function() {
+            if (this.value === 'staff' || this.value === 'pimpinan') {
+                cabangContainer.classList.remove('hidden');
+            } else {
+                cabangContainer.classList.add('hidden');
+            }
+        });
+
+        // Login form submit
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const npp = document.getElementById('npp').value;
+            const password = document.getElementById('password').value;
+            const wilayah = document.getElementById('wilayah').value;
+            const cabang = document.getElementById('cabang').value;
+            const userType = document.getElementById('userType').value;
+
+            // Validate login
+            const user = userData.find(u => 
+                u.npp === npp && 
+                u.password === password && 
+                u.type === userType && 
+                u.wilayah === wilayah && 
+                (userType === 'wilayah' || u.cabang === cabang)
+            );
+
+            if (user) {
+                currentUser = user;
+                showDashboard();
+            } else {
+                alert('Login gagal. Periksa kembali data yang dimasukkan.');
+            }
+        });
+
+        // Logout button
+        logoutBtn.addEventListener('click', function() {
+            currentUser = null;
+            loginPage.classList.remove('hidden');
+            dashboardPage.classList.add('hidden');
+            loginForm.reset();
+        });
+
+        // Filter cabang change
+        filterCabang.addEventListener('change', function() {
+            populateOutletOptions(filterOutlet, this.value);
+            renderNotarisTable();
+        });
+
+        // Filter outlet change
+        filterOutlet.addEventListener('change', function() {
+            renderNotarisTable();
+        });
+
+        // Search notaris input
+        searchNotaris.addEventListener('input', function() {
+            renderNotarisTable();
+        });
+
+        // Add notaris button
+        addNotarisBtn.addEventListener('click', function() {
+            if (currentUser.type !== 'staff') {
+                alert('Hanya Staff yang dapat menambah data notaris.');
+                return;
+            }
+            
+            document.getElementById('modalTitle').textContent = 'Tambah Notaris';
+            document.getElementById('notarisId').value = '';
+            notarisForm.reset();
+            
+            // Set default cabang based on user's cabang
+            if (currentUser.cabang) {
+                modalCabang.value = currentUser.cabang;
+                modalCabang.disabled = true;
+                populateOutletOptions(modalOutlet, currentUser.cabang);
+            } else {
+                modalCabang.disabled = false;
+            }
+            
+            notarisModal.style.display = 'block';
+        });
+
+        // Notaris form submit
+        notarisForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('notarisId').value;
+            const nama = document.getElementById('namaNotaris').value;
+            const cabang = document.getElementById('modalCabang').value;
+            const outlet = document.getElementById('modalOutlet').value;
+            const status = document.getElementById('statusNotaris').value;
+            
+            if (id) {
+                // Update existing notaris
+                const index = notarisData.findIndex(n => n.id == id);
+                if (index !== -1) {
+                    notarisData[index] = {
+                        ...notarisData[index],
+                        nama,
+                        cabang,
+                        outlet,
+                        status
+                    };
+                }
+            } else {
+                // Add new notaris
+                const newId = Math.max(...notarisData.map(n => n.id), 0) + 1;
+                notarisData.push({
+                    id: newId,
+                    nama,
+                    cabang,
+                    outlet,
+                    status
+                });
+            }
+            
+            notarisModal.style.display = 'none';
+            renderNotarisTable();
+        });
+
+        // Modal cabang change
+        modalCabang.addEventListener('change', function() {
+            populateOutletOptions(modalOutlet, this.value);
+        });
+
+        // Debitur form submit
+        debiturForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('debiturId').value;
+            const notarisId = document.getElementById('debiturNotarisId').value;
+            const nama = document.getElementById('namaDebitur').value;
+            const tanggalPengajuan = document.getElementById('tanggalPengajuan').value;
+            const jenisKredit = document.getElementById('jenisKredit').value;
+            const plafond = document.getElementById('plafond').value;
+            const status = document.getElementById('statusDebitur').value;
+            const keterangan = document.getElementById('keterangan').value;
+            
+            if (id) {
+                // Update existing debitur
+                const index = debiturData.findIndex(d => d.id == id);
+                if (index !== -1) {
+                    // Add to timeline if status changed
+                    if (debiturData[index].status !== status) {
+                        if (!debiturData[index].timeline) {
+                            debiturData[index].timeline = [];
+                        }
+                        
+                        debiturData[index].timeline.push({
+                            status,
+                            tanggal: new Date().toISOString().split('T')[0],
+                            keterangan: keterangan || `Status berubah menjadi ${status}`
+                        });
+                    }
+                    
+                    debiturData[index] = {
+                        ...debiturData[index],
+                        nama,
+                        tanggalPengajuan,
+                        jenisKredit,
+                        plafond,
+                        status,
+                        keterangan
+                    };
+                }
+            } else {
+                // Add new debitur
+                const newId = Math.max(...debiturData.map(d => d.id), 0) + 1;
+                debiturData.push({
+                    id: newId,
+                    notarisId: parseInt(notarisId),
+                    nama,
+                    tanggalPengajuan,
+                    jenisKredit,
+                    plafond,
+                    status,
+                    keterangan,
+                    timeline: [
+                        {
+                            status,
+                            tanggal: tanggalPengajuan,
+                            keterangan: keterangan || `Pengajuan kredit`
+                        }
+                    ]
+                });
+            }
+            
+            // Reset form and switch to list tab
+            document.getElementById('debiturId').value = '';
+            debiturForm.reset();
+            document.querySelector('.tab[data-tab="debiturList"]').click();
+            
+            renderDebiturTable(selectedNotarisId);
+        });
+
+        // Reset form button
+        document.querySelector('.reset-form').addEventListener('click', function() {
+            document.getElementById('debiturId').value = '';
+            debiturForm.reset();
+        });
+
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Close modals
+        document.querySelectorAll('.close, .close-modal').forEach(element => {
+            element.addEventListener('click', function() {
+                notarisModal.style.display = 'none';
+                debiturModal.style.display = 'none';
+                debiturDetailModal.style.display = 'none';
+                deleteConfirmModal.style.display = 'none';
+            });
+        });
+
+        // Confirm delete button
+        confirmDeleteBtn.addEventListener('click', function() {
+            if (deleteType === 'notaris') {
+                notarisData = notarisData.filter(n => n.id != deleteId);
+                // Also delete related debitur data
+                debiturData = debiturData.filter(d => d.notarisId != deleteId);
+                renderNotarisTable();
+            } else if (deleteType === 'debitur') {
+                debiturData = debiturData.filter(d => d.id != deleteId);
+                renderDebiturTable(selectedNotarisId);
+            }
+            
+            deleteConfirmModal.style.display = 'none';
+        });
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.addEventListener('click', function(event) {
+            if (event.target === notarisModal) {
+                notarisModal.style.display = 'none';
+            }
+            if (event.target === debiturModal) {
+                debiturModal.style.display = 'none';
+            }
+            if (event.target === debiturDetailModal) {
+                debiturDetailModal.style.display = 'none';
+            }
+            if (event.target === deleteConfirmModal) {
+                deleteConfirmModal.style.display = 'none';
+            }
+        });
+
+        // Format plafond input to currency
+        document.getElementById('plafond').addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value === '') return;
+            
+            value = parseInt(value, 10).toString();
+            this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        });
+    });
+
+    // Functions
+    function showDashboard() {
+        loginPage.classList.add('hidden');
+        dashboardPage.classList.remove('hidden');
+        
+        // Set user info
+        userInfo.textContent = `${currentUser.name} (${currentUser.type.charAt(0).toUpperCase() + currentUser.type.slice(1)})`;
+        
+        // Set filter based on user type
+        if (currentUser.type === 'staff' || currentUser.type === 'pimpinan') {
+            filterCabang.value = currentUser.cabang;
+            filterCabang.disabled = true;
+            populateOutletOptions(filterOutlet, currentUser.cabang);
+        } else {
+            filterCabang.disabled = false;
+        }
+        
+        // Show/hide add button based on user type
+        addNotarisBtn.style.display = currentUser.type === 'staff' ? 'block' : 'none';
+        
+        renderNotarisTable();
+    }
+
+    function populateOutletOptions(selectElement, cabang) {
+        selectElement.innerHTML = '<option value="">Semua Outlet</option>';
+        
+        if (cabang && outletData[cabang]) {
+            outletData[cabang].forEach(outlet => {
+                const option = document.createElement('option');
+                option.value = outlet;
+                option.textContent = outlet;
+                selectElement.appendChild(option);
+            });
+        }
+    }
+
+    function renderNotarisTable() {
+        const tbody = notarisTable.querySelector('tbody');
+        tbody.innerHTML = '';
+        
+        let filteredData = [...notarisData];
+        
+        // Filter by user permissions
+        if (currentUser.type === 'staff' || currentUser.type === 'pimpinan') {
+            filteredData = filteredData.filter(n => n.cabang === currentUser.cabang);
+        }
+        
+        // Apply filters
+        const cabangFilter = filterCabang.value;
+        if (cabangFilter) {
+            filteredData = filteredData.filter(n => n.cabang === cabangFilter);
+        }
+        
+        const outletFilter = filterOutlet.value;
+        if (outletFilter) {
+            filteredData = filteredData.filter(n => n.outlet === outletFilter);
+        }
+        
+        const searchFilter = searchNotaris.value.toLowerCase();
+        if (searchFilter) {
+            filteredData = filteredData.filter(n => n.nama.toLowerCase().includes(searchFilter));
+        }
+        
+        if (filteredData.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="7" class="text-center py-4">Tidak ada data notaris yang ditemukan</td>`;
+            tbody.appendChild(tr);
+            return;
+        }
+        
+        filteredData.forEach((notaris, index) => {
+            const debiturCount = debiturData.filter(d => d.notarisId === notaris.id).length;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${notaris.nama}</td>
+                <td>${notaris.cabang}</td>
+                <td>${notaris.outlet}</td>
+                <td>${debiturCount}</td>
+                <td>
+                    <span class="px-2 py-1 rounded-full text-xs ${notaris.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${notaris.status === 'aktif' ? 'Aktif' : 'Non-Aktif'}
+                    </span>
+                </td>
+                <td class="flex space-x-2">
+                    <button class="view-debitur px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all" data-id="${notaris.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                    ${currentUser.type === 'staff' ? `
+                    <button class="edit-notaris px-2 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-all" data-id="${notaris.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <button class="delete-notaris px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all" data-id="${notaris.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                    ` : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        // Add event listeners to buttons
+        document.querySelectorAll('.view-debitur').forEach(button => {
+            button.addEventListener('click', function() {
+                const notarisId = this.dataset.id;
+                selectedNotarisId = notarisId;
+                openDebiturModal(notarisId);
+            });
+        });
+        
+        document.querySelectorAll('.edit-notaris').forEach(button => {
+            button.addEventListener('click', function() {
+                const notarisId = this.dataset.id;
+                editNotaris(notarisId);
+            });
+        });
+        
+        document.querySelectorAll('.delete-notaris').forEach(button => {
+            button.addEventListener('click', function() {
+                const notarisId = this.dataset.id;
+                confirmDelete('notaris', notarisId);
+            });
+        });
+    }
+
+    function editNotaris(notarisId) {
+        const notaris = notarisData.find(n => n.id == notarisId);
+        if (!notaris) return;
+        
+        document.getElementById('modalTitle').textContent = 'Edit Notaris';
+        document.getElementById('notarisId').value = notaris.id;
+        document.getElementById('namaNotaris').value = notaris.nama;
+        document.getElementById('modalCabang').value = notaris.cabang;
+        populateOutletOptions(modalOutlet, notaris.cabang);
+        document.getElementById('modalOutlet').value = notaris.outlet;
+        document.getElementById('statusNotaris').value = notaris.status;
+        
+        // Disable cabang selection if user is staff
+        if (currentUser.type === 'staff') {
+            document.getElementById('modalCabang').disabled = true;
+        }
+        
+        notarisModal.style.display = 'block';
+    }
+
+    function openDebiturModal(notarisId) {
+        const notaris = notarisData.find(n => n.id == notarisId);
+        if (!notaris) return;
+        
+        document.getElementById('notarisName').textContent = notaris.nama;
+        document.getElementById('debiturNotarisId').value = notarisId;
+        
+        // Show/hide add tab based on user type
+        const addDebiturTab = document.querySelector('.tab[data-tab="addDebitur"]');
+        if (currentUser.type === 'staff' && currentUser.cabang === notaris.cabang) {
+            addDebiturTab.style.display = 'block';
+        } else {
+            addDebiturTab.style.display = 'none';
+            // Make sure we're on the list tab
+            document.querySelector('.tab[data-tab="debiturList"]').click();
+        }
+        
+        renderDebiturTable(notarisId);
+        debiturModal.style.display = 'block';
+    }
+
+    function renderDebiturTable(notarisId) {
+        const tbody = debiturTable.querySelector('tbody');
+        tbody.innerHTML = '';
+        
+        const filteredData = debiturData.filter(d => d.notarisId == notarisId);
+        
+        if (filteredData.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="5" class="text-center py-4">Tidak ada data debitur yang ditemukan</td>`;
+            tbody.appendChild(tr);
+            return;
+        }
+        
+        filteredData.forEach((debitur, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${debitur.nama}</td>
+                <td>${formatDate(debitur.tanggalPengajuan)}</td>
+                <td>
+                    <span class="px-2 py-1 rounded-full text-xs ${getStatusClass(debitur.status)}">
+                        ${capitalizeFirstLetter(debitur.status)}
+                    </span>
+                </td>
+                <td class="flex space-x-2">
+                    <button class="view-detail px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all" data-id="${debitur.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                    ${currentUser.type === 'staff' && isUserAllowedToEdit(debitur) ? `
+                    <button class="edit-debitur px-2 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-all" data-id="${debitur.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <button class="delete-debitur px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all" data-id="${debitur.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                    ` : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        // Add event listeners to buttons
+        document.querySelectorAll('.view-detail').forEach(button => {
+            button.addEventListener('click', function() {
+                const debiturId = this.dataset.id;
+                viewDebiturDetail(debiturId);
+            });
+        });
+        
+        document.querySelectorAll('.edit-debitur').forEach(button => {
+            button.addEventListener('click', function() {
+                const debiturId = this.dataset.id;
+                editDebitur(debiturId);
+            });
+        });
+        
+        document.querySelectorAll('.delete-debitur').forEach(button => {
+            button.addEventListener('click', function() {
+                const debiturId = this.dataset.id;
+                confirmDelete('debitur', debiturId);
+            });
+        });
+    }
+
+    function isUserAllowedToEdit(debitur) {
+        if (currentUser.type !== 'staff') return false;
+        
+        const notaris = notarisData.find(n => n.id === debitur.notarisId);
+        return notaris && notaris.cabang === currentUser.cabang;
+    }
+
+    function editDebitur(debiturId) {
+        const debitur = debiturData.find(d => d.id == debiturId);
+        if (!debitur) return;
+        
+        document.getElementById('debiturId').value = debitur.id;
+        document.getElementById('namaDebitur').value = debitur.nama;
+        document.getElementById('tanggalPengajuan').value = debitur.tanggalPengajuan;
+        document.getElementById('jenisKredit').value = debitur.jenisKredit;
+        document.getElementById('plafond').value = formatCurrency(debitur.plafond);
+        document.getElementById('statusDebitur').value = debitur.status;
+        document.getElementById('keterangan').value = debitur.keterangan;
+        
+        // Switch to add tab
+        document.querySelector('.tab[data-tab="addDebitur"]').click();
+    }
+
+    function viewDebiturDetail(debiturId) {
+        const debitur = debiturData.find(d => d.id == debiturId);
+        if (!debitur) return;
+        
+        selectedDebiturId = debiturId;
+        
+        const notaris = notarisData.find(n => n.id === debitur.notarisId);
+        
+        document.getElementById('detailNamaDebitur').textContent = debitur.nama;
+        document.getElementById('detailNamaNotaris').textContent = notaris ? notaris.nama : '-';
+        document.getElementById('detailTanggalPengajuan').textContent = formatDate(debitur.tanggalPengajuan);
+        document.getElementById('detailJenisKredit').textContent = debitur.jenisKredit;
+        document.getElementById('detailPlafond').textContent = formatCurrency(debitur.plafond);
+        
+        const statusElement = document.getElementById('detailStatus');
+        statusElement.innerHTML = `
+            <span class="px-2 py-1 rounded-full text-xs ${getStatusClass(debitur.status)}">
+                ${capitalizeFirstLetter(debitur.status)}
+            </span>
+        `;
+        
+        document.getElementById('detailKeterangan').textContent = debitur.keterangan || '-';
+        
+        // Render timeline
+        const timelineContainer = document.getElementById('timelineContainer');
+        timelineContainer.innerHTML = '';
+        
+        if (debitur.timeline && debitur.timeline.length > 0) {
+            debitur.timeline.forEach((item, index) => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'flex';
+                
+                timelineItem.innerHTML = `
+                    <div class="mr-4 relative">
+                        <div class="w-3 h-3 rounded-full ${getStatusClass(item.status)} mt-1.5"></div>
+                        ${index < debitur.timeline.length - 1 ? '<div class="h-full w-0.5 bg-gray-200 absolute top-3 left-1.5 -ml-px"></div>' : ''}
+                    </div>
+                    <div class="pb-4">
+                        <p class="text-sm font-medium">${capitalizeFirstLetter(item.status)}</p>
+                        <p class="text-xs text-gray-500">${formatDate(item.tanggal)}</p>
+                        <p class="text-sm mt-1">${item.keterangan || '-'}</p>
+                    </div>
+                `;
+                
+                timelineContainer.appendChild(timelineItem);
+            });
+        } else {
+            timelineContainer.innerHTML = '<p class="text-gray-500">Tidak ada data timeline</p>';
+        }
+        
+        // Show/hide edit button based on user type
+        const editButtonContainer = document.getElementById('editButtonContainer');
+        if (currentUser.type === 'staff' && isUserAllowedToEdit(debitur)) {
+            editButtonContainer.style.display = 'flex';
+            
+            // Add event listener to edit button
+            document.getElementById('editDebiturBtn').addEventListener('click', function() {
+                debiturDetailModal.style.display = 'none';
+                editDebitur(debiturId);
+            });
+        } else {
+            editButtonContainer.style.display = 'none';
+        }
+        
+        debiturDetailModal.style.display = 'block';
+    }
+
+    function confirmDelete(type, id) {
+        deleteType = type;
+        deleteId = id;
+        
+        let confirmText = '';
+        if (type === 'notaris') {
+            const notaris = notarisData.find(n => n.id == id);
+            confirmText = `Apakah Anda yakin ingin menghapus notaris "${notaris.nama}"? Semua data debitur terkait juga akan dihapus.`;
+        } else if (type === 'debitur') {
+            const debitur = debiturData.find(d => d.id == id);
+            confirmText = `Apakah Anda yakin ingin menghapus data debitur "${debitur.nama}"?`;
+        }
+        
+        document.getElementById('deleteConfirmText').textContent = confirmText;
+        deleteConfirmModal.style.display = 'block';
+    }
+
+    // Helper functions
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        
+        const date = new Date(dateString);
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+
+    function formatCurrency(value) {
+        if (!value) return '0';
+        
+        return parseInt(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function capitalizeFirstLetter(string) {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function getStatusClass(status) {
+        switch (status) {
+            case 'pengajuan':
+                return 'bg-blue-100 text-blue-800';
+            case 'verifikasi':
+                return 'bg-purple-100 text-purple-800';
+            case 'analisa':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'persetujuan':
+                return 'bg-indigo-100 text-indigo-800';
+            case 'akad':
+                return 'bg-orange-100 text-orange-800';
+            case 'pencairan':
+                return 'bg-green-100 text-green-800';
+            case 'aktif':
+                return 'bg-green-100 text-green-800';
+            case 'nonaktif':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    }
+
+</script>
